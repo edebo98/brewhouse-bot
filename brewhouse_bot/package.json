@@ -1,0 +1,16 @@
+{
+  "name": "brewhouse-bot",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/bot.js",
+    "test": "jest --forceExit --testTimeout=10000"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-telegram-bot-api": "^0.63.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
+
