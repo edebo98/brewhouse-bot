@@ -35,28 +35,19 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                echo 'Deploying to production...'
-                sh """
-                    rsync -a \
-                      --exclude='node_modules' \
-                      --exclude='.git' \
-                      --exclude='.env' \
-                      brewhouse_bot/ ${APP_DIR}/
-
-                    cd ${APP_DIR}
-
-                    npm ci --omit=dev
-
-                    pm2 delete ${APP_NAME} || true
-
-                    TELEGRAM_TOKEN=${TELEGRAM_TOKEN} pm2 start src/bot.js --name ${APP_NAME}
-
-                    pm2 save
-                """
+    steps {
+        withCredentials([string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TELEGRAM_TOKEN')]) {
+            sh 'mkdir -p /opt/brewhouse-bot'
+            dir('brewhouse_bot') {
+                sh 'rsync -a --exclude=node_modules --exclude=.git --exclude=.env . /opt/brewhouse-bot/'
+                sh 'cd /opt/brewhouse-bot && npm ci --omit=dev'
+                sh 'pm2 delete brewhouse-bot || true'
+                sh "TELEGRAM_TOKEN=${TELEGRAM_TOKEN} pm2 start /opt/brewhouse-bot/src/bot.js --name brewhouse-bot"
+                sh 'pm2 save'
             }
         }
     }
+}
 
     post {
         success {
